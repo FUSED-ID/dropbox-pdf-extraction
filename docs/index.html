@@ -63,19 +63,19 @@
   <h1>Dropbox <span>PDF Extraction</span></h1>
   <p>Hardened pipeline that batch-extracts every Dropbox PDF into searchable Obsidian notes — with OCR fallback, crash-safe atomic writes, and a 129-test codex harness.</p>
   <div class="badges">
-    <span class="badge"><span class="dot dot-green"></span>129 tests green</span>
+    <span class="badge"><span class="dot dot-green"></span>133 tests green</span>
     <span class="badge"><span class="dot dot-blue"></span>16,167 notes extracted</span>
-    <span class="badge"><span class="dot dot-purple"></span>Codex lanes A–Q</span>
+    <span class="badge"><span class="dot dot-purple"></span>Codex lanes A–R</span>
     <span class="badge"><span class="dot dot-green"></span>Daily + Saturday scheduled</span>
   </div>
 </div></div>
 
 <div class="stats">
   <div class="stat"><div class="value v-blue">19,371</div><div class="label">Total PDFs (5y window)</div></div>
-  <div class="stat"><div class="value v-green">16,167</div><div class="label">Notes extracted</div></div>
+  <div class="stat"><div class="value v-green">16,241</div><div class="label">Notes extracted</div></div>
   <div class="stat"><div class="value v-yellow">1,707</div><div class="label">Remaining</div></div>
-  <div class="stat"><div class="value v-purple">129</div><div class="label">Tests (all green)</div></div>
-  <div class="stat"><div class="value v-blue">17</div><div class="label">Codex layers A–Q</div></div>
+  <div class="stat"><div class="value v-purple">133</div><div class="label">Tests (all green)</div></div>
+  <div class="stat"><div class="value v-blue">18</div><div class="label">Codex layers A–Q</div></div>
   <div class="stat"><div class="value v-green">2</div><div class="label">Runs to completion</div></div>
 </div>
 <hr>
@@ -124,7 +124,7 @@ ProcessPoolExecutor       <span class="c">← persistent pool (max_workers=1); r
 </div>
 </section><hr>
 
-<section><h2>Codex Test Harness — 17 Lanes, 129 Tests</h2>
+<section><h2>Codex Test Harness — 18 Lanes, 133 Tests</h2>
 <div class="codex-grid">
   <div class="codex-card"><span class="lid">A</span><div><div class="lt">Pure functions</div><div class="ld">Slug generation, text extraction</div></div></div>
   <div class="codex-card"><span class="lid">B</span><div><div class="lt">State I/O</div><div class="ld">Load, save, atomic write</div></div></div>
@@ -143,6 +143,7 @@ ProcessPoolExecutor       <span class="c">← persistent pool (max_workers=1); r
   <div class="codex-card"><span class="lid new">O</span><div><div class="lt">--prune-stale</div><div class="ld">Stale entry removal</div></div></div>
   <div class="codex-card"><span class="lid new">P</span><div><div class="lt">--re-extract-missing</div><div class="ld">Lost-note requeue</div></div></div>
   <div class="codex-card"><span class="lid new">Q</span><div><div class="lt">Poltergeist callback</div><div class="ld">SIGTERM survival, atomic write verified</div></div></div>
+  <div class="codex-card"><span class="lid new">R</span><div><div class="lt">Cutoff boundary</div><div class="ld">CUTOFF_YEARS=6 gate — inside/outside, no stale entries</div></div></div>
 </div>
 <h3>Reusable Runner</h3>
 <div class="codebox">
@@ -175,10 +176,11 @@ cx = CodexRunner(<span class="str">"My Script"</span>)
 <div class="irow"><div class="idate">2026-06-23</div><div><div class="ititle">Crash mid-batch → partial state, flags lost</div><div class="ifix">Fix: atomic writes + poltergeist callback + reconcile_from_disk on next run</div><span class="tag tag-fixed">fixed</span></div></div>
 <div class="irow"><div class="idate">2026-06-28</div><div><div class="ititle">scan_dropbox_pdfs overwrote 13,331 extracted=True flags after key migration</div><div class="ifix">Root cause: if fpath in state used abs path against relative-key state. Fix: if to_rel(fpath) in state. Recovered via reconcile in 8s.</div><span class="tag tag-fixed">fixed</span></div></div>
 <div class="irow"><div class="idate">2026-06-28</div><div><div class="ititle">Cross-machine orphan notes</div><div class="ifix">Fix: relative-path state keys — permanent structural fix, not a patch</div><span class="tag tag-fixed">fixed permanently</span></div></div>
+<div class="irow"><div class="idate">2026-06-28</div><div><div class="ititle">CUTOFF_YEARS 5 → 6 (company age window)</div><div class="ifix">Captures full Sunified Group BV history from founding (~2020). Probe: +8,689 net new PDFs, 9 extra daily runs. Layer R codex gate added. 133/133 tests green.</div><span class="tag tag-fixed">deployed</span></div></div>
 </section>
 
 <footer><div class="wrap">
   <p><a href="https://github.com/FUSED-ID/dropbox-pdf-extraction">github.com/FUSED-ID/dropbox-pdf-extraction</a> · Built by <a href="https://github.com/FUSED-ID">FUSED-ID</a></p>
-  <p style="margin-top:8px">Last updated: 2026-06-28 · 129/129 tests green · Codex lanes A–Q</p>
+  <p style="margin-top:8px">Last updated: 2026-06-28 · 129/133 tests green · Codex lanes A–Q</p>
 </div></footer>
 </body></html>
