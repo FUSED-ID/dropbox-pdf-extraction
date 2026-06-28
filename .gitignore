@@ -1,0 +1,9 @@
+_extract_state.json
+_extraction_progress.json
+_reconsider_report_*.md
+_weekly_checkpoint_*.md
+_audit_log_*.txt
+__pycache__/
+*.pyc
+.DS_Store
+~/.ocr_tmp/

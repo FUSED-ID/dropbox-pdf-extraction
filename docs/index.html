@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dropbox PDF Extraction — FUSED-ID</title>
+<style>
+  :root { --bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--green:#3fb950;--yellow:#d29922;--red:#f85149;--purple:#bc8cff;--orange:#ffa657; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;line-height:1.6}
+  .hero{background:linear-gradient(135deg,#0d1117 0%,#161b22 50%,#1c2128 100%);border-bottom:1px solid var(--border);padding:80px 24px 60px;text-align:center}
+  .hero h1{font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:-.02em;margin-bottom:16px}
+  .hero h1 span{background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .hero p{color:var(--muted);font-size:1.1rem;max-width:600px;margin:0 auto 32px}
+  .badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:.85rem;color:var(--muted)}
+  .dot{width:8px;height:8px;border-radius:50%}
+  .dot-green{background:var(--green)}.dot-blue{background:var(--accent)}.dot-purple{background:var(--purple)}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 24px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;padding:48px 24px;max-width:1100px;margin:0 auto}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center}
+  .stat .value{font-size:2rem;font-weight:700}
+  .stat .label{color:var(--muted);font-size:.8rem;margin-top:4px}
+  .v-green{color:var(--green)}.v-blue{color:var(--accent)}.v-yellow{color:var(--yellow)}.v-purple{color:var(--purple)}
+  section{padding:48px 24px;max-width:1100px;margin:0 auto}
+  h2{font-size:1.5rem;font-weight:600;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+  h3{font-size:1rem;font-weight:600;margin:24px 0 10px;color:var(--accent)}
+  p{color:var(--muted);margin-bottom:14px}
+  .arch{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:28px;font-family:"SF Mono","Fira Code",monospace;font-size:.8rem;line-height:1.9;overflow-x:auto}
+  .c{color:var(--muted)}.kw{color:var(--accent)}.arr{color:var(--purple)}
+  .codex-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+  .codex-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;gap:12px;align-items:flex-start}
+  .lid{background:var(--accent);color:#000;font-weight:700;font-family:monospace;font-size:.78rem;border-radius:6px;padding:3px 7px;flex-shrink:0;margin-top:2px}
+  .lid.new{background:var(--purple)}
+  .lt{font-size:.88rem;font-weight:600}.ld{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .flags{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .flag-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+  .fn{font-family:monospace;font-size:.88rem;color:var(--orange);font-weight:600}
+  .fd{color:var(--muted);font-size:.82rem;margin-top:8px}
+  .fs{display:inline-block;margin-top:10px;font-size:.72rem;border-radius:4px;padding:2px 8px}
+  .safe{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+  .write{background:rgba(210,153,34,.15);color:var(--yellow);border:1px solid rgba(210,153,34,.3)}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--border);font-size:.88rem}
+  th{color:var(--muted);font-weight:500;font-size:.78rem;text-transform:uppercase;letter-spacing:.05em}
+  tr:last-child td{border-bottom:none}
+  code{font-family:"SF Mono",monospace;background:rgba(88,166,255,.1);color:var(--accent);padding:2px 6px;border-radius:4px;font-size:.8rem}
+  .codebox{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 22px;font-family:"SF Mono",monospace;font-size:.8rem;line-height:1.8;overflow-x:auto}
+  .codebox .c{color:var(--muted)}.codebox .kw{color:var(--purple)}.codebox .fn{color:var(--accent)}.codebox .str{color:var(--orange)}
+  .irow{display:flex;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+  .irow:last-child{border-bottom:none}
+  .idate{font-family:monospace;font-size:.78rem;color:var(--muted);flex-shrink:0;width:100px;margin-top:2px}
+  .ititle{font-size:.88rem;font-weight:600}.ifix{font-size:.8rem;color:var(--muted);margin-top:4px}
+  .tag{font-size:.72rem;padding:2px 8px;border-radius:4px;margin-top:8px;display:inline-block}
+  .tag-fixed{background:rgba(63,185,80,.15);color:var(--green);border:1px solid rgba(63,185,80,.3)}
+  footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;color:var(--muted);font-size:.82rem}
+  footer a{color:var(--accent);text-decoration:none}
+  hr{border:none;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <h1>Dropbox <span>PDF Extraction</span></h1>
+  <p>Hardened pipeline that batch-extracts every Dropbox PDF into searchable Obsidian notes — with OCR fallback, crash-safe atomic writes, and a 129-test codex harness.</p>
+  <div class="badges">
+    <span class="badge"><span class="dot dot-green"></span>129 tests green</span>
+    <span class="badge"><span class="dot dot-blue"></span>16,167 notes extracted</span>
+    <span class="badge"><span class="dot dot-purple"></span>Codex lanes A–Q</span>
+    <span class="badge"><span class="dot dot-green"></span>Daily + Saturday scheduled</span>
+  </div>
+</div></div>
+
+<div class="stats">
+  <div class="stat"><div class="value v-blue">19,371</div><div class="label">Total PDFs (5y window)</div></div>
+  <div class="stat"><div class="value v-green">16,167</div><div class="label">Notes extracted</div></div>
+  <div class="stat"><div class="value v-yellow">1,707</div><div class="label">Remaining</div></div>
+  <div class="stat"><div class="value v-purple">129</div><div class="label">Tests (all green)</div></div>
+  <div class="stat"><div class="value v-blue">17</div><div class="label">Codex layers A–Q</div></div>
+  <div class="stat"><div class="value v-green">2</div><div class="label">Runs to completion</div></div>
+</div>
+<hr>
+
+<section><h2>Architecture</h2>
+<div class="arch">
+<span class="c"># Pipeline — runs daily at 4:30 AM</span>
+
+Dropbox PDFs
+  <span class="arr">│</span>
+  <span class="arr">▼</span>
+<span class="kw">reconcile_from_disk()</span>    <span class="c">← restore extracted=True flags from note frontmatter</span>
+  <span class="arr">│</span>
+  <span class="arr">▼</span>
+<span class="kw">scan_dropbox_pdfs()</span>      <span class="c">← discover new PDFs; store RELATIVE-path keys</span>
+  <span class="arr">│</span>
+  <span class="arr">▼</span>
+<span class="kw">get_unextracted_pdfs()</span>   <span class="c">← filter: not extracted, not deferred, not terminal</span>
+  <span class="arr">│</span>
+  <span class="arr">▼</span>
+ProcessPoolExecutor       <span class="c">← persistent pool (max_workers=1); recycled on crash</span>
+  <span class="arr">├─</span> PyPDF2 extraction
+  <span class="arr">└─</span> OCR fallback          <span class="c">← tesseract v5.5 via pdftoppm → ~/.ocr_tmp/</span>
+      <span class="arr">│</span>
+      <span class="arr">▼</span>
+    <span class="kw">write_note()</span>           <span class="c">← atomic: tmp → os.replace() → os.fsync()</span>
+      <span class="arr">│</span>
+      <span class="arr">▼</span>
+    <span class="kw">save_extract_state()</span>   <span class="c">← atomic; fires in finally: (poltergeist callback)</span>
+      <span class="arr">│</span>
+      <span class="arr">▼</span>
+    <span class="kw">_write_daily_report()</span>  <span class="c">← self-contained markdown; survives agent exit</span>
+</div>
+<h3>Key Design Decisions</h3>
+<p><strong style="color:var(--text)">Relative-path state keys</strong> — keys stored relative to DROPBOX_ROOT. Eliminates the cross-machine orphan class.</p>
+<p><strong style="color:var(--text)">Poltergeist callback</strong> — <code>finally: save_extract_state(state)</code> fires even on SIGTERM. Verified by Layer Q.</p>
+<p><strong style="color:var(--text)">Atomic writes</strong> — all state and note files use <code>tmp → os.replace() → os.fsync()</code>. No partial writes survive a crash.</p>
+</section><hr>
+
+<section><h2>Maintenance Flags</h2>
+<div class="flags">
+  <div class="flag-card"><div class="fn">--audit</div><div class="fd">Cross-match notes vs state. Reports orphaned notes, missing notes, stale entries.</div><span class="fs safe">non-destructive</span></div>
+  <div class="flag-card"><div class="fn">--prune-stale</div><div class="fd">Remove state entries for PDFs that no longer exist on disk.</div><span class="fs write">writes state</span></div>
+  <div class="flag-card"><div class="fn">--re-extract-missing</div><div class="fd">Reset extracted=True entries with no note on disk → back to work queue.</div><span class="fs write">writes state</span></div>
+  <div class="flag-card"><div class="fn">--retry-ocr</div><div class="fd">Reset scanned_image failures → work queue. Use after improving tesseract or bringing Dropbox offline.</div><span class="fs write">writes state</span></div>
+</div>
+</section><hr>
+
+<section><h2>Codex Test Harness — 17 Lanes, 129 Tests</h2>
+<div class="codex-grid">
+  <div class="codex-card"><span class="lid">A</span><div><div class="lt">Pure functions</div><div class="ld">Slug generation, text extraction</div></div></div>
+  <div class="codex-card"><span class="lid">B</span><div><div class="lt">State I/O</div><div class="ld">Load, save, atomic write</div></div></div>
+  <div class="codex-card"><span class="lid">C</span><div><div class="lt">Failure routing</div><div class="ld">Transient vs permanent vs deferred</div></div></div>
+  <div class="codex-card"><span class="lid">D</span><div><div class="lt">Path normalization</div><div class="ld">NFC/NFD, Unicode edge cases</div></div></div>
+  <div class="codex-card"><span class="lid">E</span><div><div class="lt">OCR error classification</div><div class="ld">Tesseract error routing</div></div></div>
+  <div class="codex-card"><span class="lid">F</span><div><div class="lt">State recovery</div><div class="ld">Crash simulation</div></div></div>
+  <div class="codex-card"><span class="lid">G</span><div><div class="lt">Discovery</div><div class="ld">scan_dropbox_pdfs, 0-byte detection</div></div></div>
+  <div class="codex-card"><span class="lid">H</span><div><div class="lt">Worker pool</div><div class="ld">Persistent ProcessPoolExecutor</div></div></div>
+  <div class="codex-card"><span class="lid">I</span><div><div class="lt">Reconcile-from-disk</div><div class="ld">Restore flags from note frontmatter</div></div></div>
+  <div class="codex-card"><span class="lid">J</span><div><div class="lt">Notes &amp; report</div><div class="ld">Markdown output, daily report</div></div></div>
+  <div class="codex-card"><span class="lid">K</span><div><div class="lt">Regression: no spawn</div><div class="ld">No per-PDF subprocess</div></div></div>
+  <div class="codex-card"><span class="lid">L</span><div><div class="lt">Legacy failure reset</div><div class="ld">Permanent-failure regression</div></div></div>
+  <div class="codex-card"><span class="lid new">M</span><div><div class="lt">Relative-path keys</div><div class="ld">to_rel, to_abs, _rel_norm, migration</div></div></div>
+  <div class="codex-card"><span class="lid new">N</span><div><div class="lt">--audit flag</div><div class="ld">Orphan/missing/stale counts</div></div></div>
+  <div class="codex-card"><span class="lid new">O</span><div><div class="lt">--prune-stale</div><div class="ld">Stale entry removal</div></div></div>
+  <div class="codex-card"><span class="lid new">P</span><div><div class="lt">--re-extract-missing</div><div class="ld">Lost-note requeue</div></div></div>
+  <div class="codex-card"><span class="lid new">Q</span><div><div class="lt">Poltergeist callback</div><div class="ld">SIGTERM survival, atomic write verified</div></div></div>
+</div>
+<h3>Reusable Runner</h3>
+<div class="codebox">
+<span class="kw">from</span> _codex_runner <span class="kw">import</span> CodexRunner
+
+cx = CodexRunner(<span class="str">"My Script"</span>)
+
+<span class="kw">@</span>cx.<span class="fn">layer</span>(<span class="str">"A"</span>, <span class="str">"Core logic"</span>)
+<span class="kw">def</span> <span class="fn">t_core</span>(): cx.<span class="fn">check</span>(<span class="str">"basic"</span>, my_fn() == expected)
+
+<span class="kw">@</span>cx.<span class="fn">layer</span>(<span class="str">"Q"</span>, <span class="str">"Poltergeist"</span>)   <span class="c"># always last by convention</span>
+<span class="kw">def</span> <span class="fn">t_sigterm</span>(): cx.<span class="fn">poltergeist</span>(<span class="str">"script.py"</span>, setup, assert_state)
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>: cx.<span class="fn">run</span>()
+</div>
+</section><hr>
+
+<section><h2>Scheduled Jobs</h2>
+<table>
+  <thead><tr><th>Task</th><th>Schedule</th><th>What it does</th></tr></thead>
+  <tbody>
+    <tr><td><code>dropbox-pdf-extraction</code></td><td>Daily 4:30 AM</td><td>Extract up to 1,000 PDFs; write daily report</td></tr>
+    <tr><td><code>dropbox-pdf-weekly-checkpoint</code></td><td>Saturday 6:00 AM</td><td>129-test suite + audit + OCR toolchain check + checkpoint note</td></tr>
+  </tbody>
+</table>
+</section><hr>
+
+<section><h2>Incident Log</h2>
+<div class="irow"><div class="idate">2026-06-11</div><div><div class="ititle">Brittle per-PDF subprocess → broken pipes</div><div class="ifix">Fix: persistent ProcessPoolExecutor(max_workers=1), recycled on BrokenExecutor or hard timeout</div><span class="tag tag-fixed">fixed</span></div></div>
+<div class="irow"><div class="idate">2026-06-23</div><div><div class="ititle">Crash mid-batch → partial state, flags lost</div><div class="ifix">Fix: atomic writes + poltergeist callback + reconcile_from_disk on next run</div><span class="tag tag-fixed">fixed</span></div></div>
+<div class="irow"><div class="idate">2026-06-28</div><div><div class="ititle">scan_dropbox_pdfs overwrote 13,331 extracted=True flags after key migration</div><div class="ifix">Root cause: if fpath in state used abs path against relative-key state. Fix: if to_rel(fpath) in state. Recovered via reconcile in 8s.</div><span class="tag tag-fixed">fixed</span></div></div>
+<div class="irow"><div class="idate">2026-06-28</div><div><div class="ititle">Cross-machine orphan notes</div><div class="ifix">Fix: relative-path state keys — permanent structural fix, not a patch</div><span class="tag tag-fixed">fixed permanently</span></div></div>
+</section>
+
+<footer><div class="wrap">
+  <p><a href="https://github.com/FUSED-ID/dropbox-pdf-extraction">github.com/FUSED-ID/dropbox-pdf-extraction</a> · Built by <a href="https://github.com/FUSED-ID">FUSED-ID</a></p>
+  <p style="margin-top:8px">Last updated: 2026-06-28 · 129/129 tests green · Codex lanes A–Q</p>
+</div></footer>
+</body></html>
