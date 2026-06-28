@@ -869,6 +869,90 @@ def t_poltergeist_callback():
               state_ok, "recoverable from .tmp")
 
 
+# ─── R. Cutoff boundary — CUTOFF_YEARS = 6 ───────────────────────────────
+def t_cutoff_boundary():
+    """Layer R — Cutoff boundary gate for CUTOFF_YEARS=6.
+
+    Verifies the scan window accepts PDFs modified within the last 6 years
+    and rejects PDFs older than 6 years. Codex gate: must be updated whenever
+    CUTOFF_YEARS changes.
+
+    Test design (codex lane spec):
+      Setup   : sandbox DROPBOX with two minimal PDFs; set mtime via os.utime()
+                  inside_pdf  — mtime = now - 5y (just inside 6y window)
+                  outside_pdf — mtime = now - 7y (just outside 6y window)
+      Action  : scan_dropbox_pdfs(sandbox_dropbox, state={})
+      Assert  : R1 CUTOFF_YEARS is 6 (config guard)
+                R2 inside_pdf key present in state
+                R3 outside_pdf key absent from state
+                R4 no entries with mtime older than cutoff in state
+      Teardown: handled by TMP cleanup in main()
+    """
+    import time as _time
+
+    section("Layer R — Cutoff boundary (CUTOFF_YEARS=6)")
+
+    # R1 — config guard: catches accidental revert
+    check("R1 CUTOFF_YEARS == 6", m.CUTOFF_YEARS == 6,
+          f"got {m.CUTOFF_YEARS} — update this test if intentionally changed")
+
+    # Build sandbox
+    sandbox_db = os.path.join(TMP, "dropbox_cutoff_r")
+    os.makedirs(sandbox_db, exist_ok=True)
+
+    now_ts = _time.time()
+    inside_pdf  = os.path.join(sandbox_db, "inside_window.pdf")
+    outside_pdf = os.path.join(sandbox_db, "outside_window.pdf")
+
+    # Minimal valid PDF bytes so stat() and walk() work
+    _minimal_pdf = b"%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\nxref\n0 1\n0000000000 65535 f\ntrailer<</Size 1/Root 1 0 R>>\nstartxref\n9\n%%EOF"
+    for p in (inside_pdf, outside_pdf):
+        with open(p, "wb") as f:
+            f.write(_minimal_pdf)
+
+    # Set mtimes: inside = 5 years ago (within 6y window), outside = 7 years ago
+    five_years_ago  = now_ts - (5 * 365.25 * 86400)
+    seven_years_ago = now_ts - (7 * 365.25 * 86400)
+    os.utime(inside_pdf,  (five_years_ago,  five_years_ago))
+    os.utime(outside_pdf, (seven_years_ago, seven_years_ago))
+
+    # Temporarily override DROPBOX_ROOT and run scan
+    orig_root = m.DROPBOX_ROOT
+    m.DROPBOX_ROOT = sandbox_db
+    state = {}
+    try:
+        m.scan_dropbox_pdfs(state)
+        # Compute keys while root is still overridden so to_rel() uses sandbox base
+        inside_key  = m.to_rel(inside_pdf)
+        outside_key = m.to_rel(outside_pdf)
+        cutoff_ts   = now_ts - (m.CUTOFF_YEARS * 365.25 * 86400)
+    finally:
+        m.DROPBOX_ROOT = orig_root
+
+    # R2 — inside window PDF was discovered
+    check("R2 PDF within 6y window is discovered",
+          inside_key in state,
+          f"key {inside_key!r} not in state (keys: {list(state)[:3]})")
+
+    # R3 — outside window PDF was NOT discovered
+    check("R3 PDF older than 6y is excluded",
+          outside_key not in state,
+          f"key {outside_key!r} should be absent")
+
+    # R4 — no state entry has mtime older than the cutoff
+    # modified_at is stored as "%Y-%m-%d" string; lexicographic comparison works for ISO dates
+    import datetime as _dt
+    cutoff_str = (_dt.datetime.now() - _dt.timedelta(days=m.CUTOFF_YEARS * 365.25)).strftime("%Y-%m-%d")
+    stale_entries = [
+        k for k, v in state.items()
+        if isinstance(v, dict)
+        and str(v.get("modified_at", cutoff_str)) < cutoff_str
+    ]
+    check("R4 no state entries older than CUTOFF_YEARS",
+          len(stale_entries) == 0,
+          f"found {len(stale_entries)} stale entries (cutoff={cutoff_str})")
+
+
 # ─── Patch main() to call new layers ─────────────────────────────────────
 _orig_main = main   # save reference before redefining
 
@@ -897,6 +981,7 @@ def main():
         t_prune_stale()
         t_re_extract_missing()
         t_poltergeist_callback()
+        t_cutoff_boundary()
     finally:
         try:
             shutil.rmtree(TMP, ignore_errors=True)

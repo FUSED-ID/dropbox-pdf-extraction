@@ -122,6 +122,7 @@ Flags are composable: `--audit --prune-stale --re-extract-missing` runs all thre
 | O | `--prune-stale` flag | |
 | P | `--re-extract-missing` flag | |
 | Q | Poltergeist callback | SIGTERM survival, atomic write verified |
+| R | Cutoff boundary | `CUTOFF_YEARS=6` gate — inside/outside boundary, no stale entries |
 
 ### Using the Codex Runner for New Scripts
 
@@ -169,7 +170,7 @@ Top of `dropbox_pdf_extract.py`:
 | `STATE_FILE` | `_extract_state.json` | Persistent state |
 | `BATCH_SIZE` | 1000 | PDFs per run |
 | `MAX_ATTEMPTS` | 3 | Retries before terminal failure |
-| `CUTOFF_YEARS` | 5 | Skip PDFs older than N years |
+| `CUTOFF_YEARS` | 6 | Company age window — full Sunified Group BV history (est. ~2020) |
 | `WORKER_TIMEOUT` | 120 | Seconds per PDF before kill |
 | `TESSERACT_PATH` | `/opt/homebrew/bin/tesseract` | OCR binary |
 | `PDFTOPPM_PATH` | `/opt/homebrew/bin/pdftoppm` | PDF-to-image binary |
@@ -223,3 +224,4 @@ Manage in Claude Desktop → Scheduled Tasks sidebar.
 | 2026-06-23 | Crash mid-batch → partial state | Atomic write + poltergeist callback |
 | 2026-06-28 | Key migration race: scan overwrote extracted flags | Fixed `if to_rel(fpath) in state` in `scan_dropbox_pdfs()` |
 | 2026-06-28 | Cross-machine orphan class | Relative-path state keys (permanent fix) |
+| 2026-06-28 | `CUTOFF_YEARS` 5 → 6 | Company age window; +8,689 net new PDFs; 9 extra daily runs; Layer R added (133/133 green) |

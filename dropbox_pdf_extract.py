@@ -1,6 +1,6 @@
 #!/opt/homebrew/bin/python3
 """
-Dropbox PDF Extraction to Obsidian Knowledge Graph — HARDENED (deployed 2026-06-11, patched 2026-06-23)
+Dropbox PDF Extraction to Obsidian Knowledge Graph — HARDENED (deployed 2026-06-11, patched 2026-06-23, extended 2026-06-28)
 
 Hardened replacement for the original brittle version. Deployed after passing
 the test suite (_test_hardened.py + _integ_run.py). Behavioural goals are unchanged;
@@ -49,7 +49,7 @@ BATCH_SIZE = int(os.environ.get("BATCH_SIZE", "1000"))
 SAVE_INTERVAL = 100
 MAX_PAGES = 10
 MAX_WORDS = 2000
-CUTOFF_YEARS = 5
+CUTOFF_YEARS = 6   # company age window: captures full Sunified Group BV history (est. ~2020)
 MAX_ATTEMPTS = 3                # transient failures retried up to this many runs
 OCR_DPI = 200
 OCR_MAX_PAGES = 5

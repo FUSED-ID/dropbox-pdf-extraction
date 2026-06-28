@@ -189,6 +189,7 @@ Layer N  — --audit flag (orphan/missing/stale counts)
 Layer O  — --prune-stale flag
 Layer P  — --re-extract-missing flag
 Layer Q  — Poltergeist callback (SIGTERM survival, atomic write verified)
+Layer R  — Cutoff boundary (CUTOFF_YEARS=6 gate — inside/outside boundary)
 ```
 
 **Run the suite:**
@@ -307,7 +308,7 @@ Top of `dropbox_pdf_extract.py`:
 | `STATE_FILE` | `_extract_state.json` | Persistent extraction state |
 | `BATCH_SIZE` | 1000 | PDFs per run |
 | `MAX_ATTEMPTS` | 3 | Retries before terminal failure |
-| `CUTOFF_YEARS` | 5 | Skip PDFs older than N years |
+| `CUTOFF_YEARS` | 6 | Company age window — captures full Sunified Group BV history (est. ~2020) |
 | `WORKER_TIMEOUT` | 120 | Seconds per PDF before kill |
 | `TESSERACT_PATH` | `/opt/homebrew/bin/tesseract` | OCR binary |
 | `PDFTOPPM_PATH` | `/opt/homebrew/bin/pdftoppm` | PDF-to-image binary |
